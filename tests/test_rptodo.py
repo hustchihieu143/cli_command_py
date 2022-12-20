@@ -46,11 +46,6 @@ test_data2 = {
     "description, priority, expected",
     [
         pytest.param(
-            test_data1["description"],
-            test_data1["priority"],
-            (test_data1["todo"], SUCCESS),
-        ),
-        pytest.param(
             test_data2["description"],
             test_data2["priority"],
             (test_data2["todo"], SUCCESS),
@@ -58,7 +53,14 @@ test_data2 = {
     ],
 )
 def test_add(mock_json_file, description, priority, expected):
+    print("expected: ",expected)
     todoer = rptodo.Todoer(mock_json_file)
     assert todoer.add(description, priority) == expected
     read = todoer._db_handler.read_todos()
     assert len(read.todo_list) == 2
+
+def test_get_all(mock_json_file):
+    todoer = rptodo.Todoer(mock_json_file)
+    print("todoer: ", todoer.get_all())
+    assert todoer.get_all() != None
+    

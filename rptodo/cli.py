@@ -67,18 +67,80 @@ def test(
         "-test",
     ),
 ) -> None:
-    """Initialize the to-do database."""
+    """Test to-do database."""
     typer.secho(
             f'Creating database failed with',
             fg=typer.colors.RED,
         )
     typer.secho(f"The to-do database is {db_path}", fg=typer.colors.GREEN)
 
+@app.command()
+def getall():
+    """Get all to-do in the database."""
+    todoer = get_todoer()
+    data = todoer.get_all()
+    typer.secho(
+        f'data: {data}',
+        fg=typer.colors.GREEN
+    )
 
+@app.command()
+def add(
+    description: List[str] = typer.Argument(...),
+    priority: int = typer.Option(2, "--priority", "-p", min=1, max=3),
+) -> None:
+    """Add a new to-do with a DESCRIPTION."""
+    todoer = get_todoer()
+    todo, error = todoer.add(description, priority)
+    if error:
+        typer.secho(
+            f'Adding to-do failed with "{ERRORS[error]}"', fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    else:
+        typer.secho(
+            f"""to-do: "{todo['Description']}" was added """
+            f"""with priority: {priority}""",
+            fg=typer.colors.GREEN,
+        )
+
+
+@app.command()
+def delete():
+    """delete all data to-do in the database."""
+    todoer = get_todoer()
+    delete, error = todoer.delete_all()
+    if error:
+        typer.secho(
+            f'delete all to-do failed with "{ERRORS[error]}"', fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    typer.secho(
+            f"""deleted all data """,
+            fg=typer.colors.GREEN,
+        )
+
+@app.command()
+def deletebyuuid(uuid: str):
+    """delete data by uuid to-do in the database."""
+    todoer = get_todoer()
+    delete, error = todoer.delete_by_uuid(uuid)
+    if error:
+        typer.secho(
+            f'delete all to-do failed with "{ERRORS[error]}"', fg=typer.colors.RED
+        )
+        raise typer.Exit(1)
+    typer.secho(
+            f"""deleted data by uuid""",
+            fg=typer.colors.GREEN,
+        )
+    
+    
 def _version_callback(value: bool) -> None:
     if value:
         typer.echo(f"{__app_name__} v{__version__}")
         raise typer.Exit()
+    
 
 @app.callback()
 def main(
